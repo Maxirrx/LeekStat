@@ -9,14 +9,22 @@ import (
 
 type game struct{
     Id int 
+    Type int
 } 
 
 type res struct{
     Fights []game 
 }
 
+
 type data struct{
-    Data []tab
+    Data tab
+    Leeks1 []leek1
+    Winner int
+}
+
+type leek1 struct{
+    Farmer int
 }
 
 type tab struct{
@@ -35,26 +43,52 @@ type leek struct{
     Strength int
     Tp int
     Wisdom int
+    Summon bool
 }
 
 
 
 func main() {
-    all := getFightByGame(50465960)
-    fmt.Println(all)
+
+    res := getallFight()
+
+    for _, element := range res{
+    res, _ := getFightByGame(element)
+    fmt.Printf("%v\n", res)
+    }
+
+
 }
 
-func getallFight()[]game{
+func getallFight()[]int{
     response, _ := http.Get("https://leekwars.com/api/history/get-farmer-history/107035")
     var resu res
     json.NewDecoder(response.Body).Decode(&resu)
-    return resu.Fights
+    res := []int{}
+    for _, element := range resu.Fights{
+    if element.Type == 1{
+        res = append(res,element.Id)
+    }}
+    return res
 }
 
 
-func getFightByGame(id int) []tab{
+func getFightByGame(id int) ([]leek , bool){
     response, _ := http.Get("https://leekwars.com/api/fight/get/" + strconv.Itoa(id))
     var data data
     json.NewDecoder(response.Body).Decode(&data)
-    return data.Data
+    res := []leek{}
+    for _,element := range data.Data.Leeks {
+        if !element.Summon && element.Farmer != 107035{
+            res = append(res, element)
+        }
+        fmt.Println()
+    }
+    winner := false
+    if data.Winner == 1 && data.Leeks1[0].Farmer == 107035 || data.Winner == 2 && data.Leeks1[0].Farmer != 107035 {
+        winner = true
+    }
+
+
+    return res, winner
 }
