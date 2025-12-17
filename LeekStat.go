@@ -1,50 +1,60 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"io"
-	"log"
-	"strings"
-    "io/ioutil"
+    "encoding/json"
+    "fmt"
     "net/http"
-    "os"
+    "strconv"
 )
 
+type game struct{
+    Id int 
+} 
+
+type res struct{
+    Fights []game 
+}
+
+type data struct{
+    Data []tab
+}
+
+type tab struct{
+    Leeks []leek
+}
+
+type leek struct{
+    Agility int
+    Farmer int
+    Level int
+    Life int
+    Magic int
+    Mp int
+    Resistance int
+    Science int
+    Strength int
+    Tp int
+    Wisdom int
+}
+
+
+
 func main() {
+    all := getFightByGame(50465960)
+    fmt.Println(all)
+}
 
-    type game struct{
-        id [16]int
-    } 
-
-    type reponseApi struct{
-        fights []game
-    } 
-
-    response, err := http.Get("https://leekwars.com/api/history/get-farmer-history/107035")
-
-    if err != nil {
-        fmt.Print(err.Error())
-        os.Exit(1)
-    }
-
-    responseData, err := ioutil.ReadAll(response.Body)
-    if err != nil {
-        log.Fatal(err)
-    }
-
-	dec := json.NewDecoder(strings.NewReader(string(responseData)))
-	for {
-    var fights game
-		if err := dec.Decode(&fights); err == io.EOF {
-			break
-		} else if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println( fights)
-	}
-    
+func getallFight()[]game{
+    response, _ := http.Get("https://leekwars.com/api/history/get-farmer-history/107035")
+    var resu res
+    json.NewDecoder(response.Body).Decode(&resu)
+    return resu.Fights
+}
 
 
-
+func getFightByGame(id int) []tab{
+    response, _ := http.Get("https://leekwars.com/api/fight/get/" + strconv.Itoa(id))
+    var data data
+    json.NewDecoder(response.Body).Decode(&data)
+    return data.Data
 }
