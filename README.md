@@ -1,2 +1,2 @@
 # LeekStat
-to run use "go run LeekStat.go"
+to run use ```go run LeekStat.go```
